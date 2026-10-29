@@ -1,0 +1,46 @@
+# flexmassage — Portainer stack (deploy behind Nginx Proxy Manager)
+#
+# In Portainer: Stacks → Add stack → name "flexmassage" → Web editor → paste
+# this → Deploy. The image is pulled from ghcr.io once the GitHub Actions
+# build has published it. The image is public, so no registry login is needed.
+#
+# The container fetches new times every INTERVALL_MIN minutes (first fetch
+# right after start, takes ~2 min) and serves the page on port 8080.
+
+services:
+  flexmassage:
+    image: ghcr.io/ottoherdy/flexmassage:latest
+    container_name: flexmassage
+    restart: unless-stopped
+    environment:
+      - INTERVALL_MIN=30
+      - DAGAR=14
+      # Kommaseparerade namn exakt som på baraboka.se. Ta bort raden för standard
+      # (Götaplatsen, Almedal, Mölndals Centrum, Pedagogen Park Mölndal).
+      - MOTTAGNINGAR=GÖTAPLATSEN,ALMEDAL,MÖLNDALS CENTRUM,PEDAGOGEN PARK MÖLNDAL
+    networks:
+      # Same Docker network as Nginx Proxy Manager (the one otodo/choreboard use).
+      - proxy
+
+    # Alternative to the shared network: publish a host port and point NPM at
+    # http://<docker-host-ip>:8791 instead. If you use this, delete the
+    # `networks:` block above AND the top-level `networks:` block below.
+    # ports:
+    #   - "8791:8080"
+
+networks:
+  proxy:
+    external: true
+    name: REPLACE_WITH_YOUR_NPM_NETWORK
+
+# --- Nginx Proxy Manager: Proxy Host ---
+# Details tab:
+#   Domain Names:      massage.dindomän.se
+#   Scheme:            http
+#   Forward Hostname:  flexmassage    (the container name; or host IP if using ports)
+#   Forward Port:      8080           (or 8791 if you used the published port)
+#   Block Common Exploits: ON
+# SSL tab:
+#   Request a new Let's Encrypt certificate → Force SSL → HTTP/2 → agree to ToS
+#
+# Status: https://massage.dindomän.se/status shows the last successful fetch.
