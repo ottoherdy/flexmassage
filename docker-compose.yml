@@ -1,0 +1,18 @@
+services:
+  flexmassage:
+    image: ghcr.io/ottoherdy/flexmassage:latest
+    container_name: flexmassage
+    restart: unless-stopped
+    environment:
+      - INTERVALL_MIN=30
+      - DAGAR=14
+      - MOTTAGNINGAR=GÖTAPLATSEN,ALMEDAL,MÖLNDALS CENTRUM,PEDAGOGEN PARK MÖLNDAL
+    ports:
+      - "8791:8080"
+    networks:
+      edge:
+        aliases: [flexmassage]
+
+networks:
+  edge:
+    external: true
