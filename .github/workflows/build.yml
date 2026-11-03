@@ -19,6 +19,9 @@ jobs:
       - name: Syntax check
         run: python3 -m py_compile flexmassage_tider.py server.py
 
+      - name: Design system files unchanged
+        run: cd ds && sha256sum -c MANIFEST --quiet
+
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
 

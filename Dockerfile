@@ -9,6 +9,7 @@ ENV TZ=Europe/Stockholm \
 
 WORKDIR /app
 COPY flexmassage_tider.py server.py mall.html ./
+COPY ds ./ds
 RUN adduser -D -u 1000 app && mkdir -p /app/data && chown app /app/data
 USER app
 
