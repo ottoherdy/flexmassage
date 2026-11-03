@@ -8,7 +8,7 @@ uppdateras var 30:e minut.
 
 - Repo: https://github.com/ottoherdy/flexmassage (publikt, branch `main`).
 - Image: `ghcr.io/ottoherdy/flexmassage:latest`, byggd av GitHub Actions
-  (amd64 + arm64). **Publik**, anonym pull verifierad (HTTP 200). Ingen
+  (amd64). **Publik**, anonym pull verifierad (HTTP 200). Ingen
   registry-inloggning behövs.
 - Testat: Python-servern lokalt (en hämtning: 972 tider på 94 s, sidan renderar
   rätt). **Containern själv är inte körd någonstans än** (ingen Docker på Ottos Mac).
@@ -23,7 +23,7 @@ uppdateras var 30:e minut.
   minut. Första hämtningen tar ~1,5–2 min; under tiden visas en väntesida som
   laddar om sig själv.
 - Skriver till `/app/data` inne i containern (ingen volym behövs, datan
-  återskapas vid start). Kör som uid 1000. TZ `Europe/Stockholm`.
+  återskapas vid start). Kör som uid 10001 (`appuser`). TZ `Europe/Stockholm`.
 - Har en Docker HEALTHCHECK mot `/healthz`.
 - Behöver utgående HTTPS till `baraboka.se`.
 
