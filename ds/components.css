@@ -1,0 +1,305 @@
+/* designsystem · components.css — gemensamma komponenter. Kräver tokens.css + base.css.
+ * Appens egna komponenter skrivs i appens app.css med samma tokens. */
+
+/* ---------- Sida ---------- */
+.page { max-width: var(--page-max); margin: 0 auto; padding: 0 var(--s4) var(--s8); display: flex; flex-direction: column; gap: var(--s3); }
+.stack { display: flex; flex-direction: column; gap: var(--s3); }
+.cluster { display: flex; flex-wrap: wrap; gap: var(--s2); align-items: center; }
+.spread { display: flex; align-items: center; gap: var(--s2); }
+.spread > :first-child { flex: 1; min-width: 0; }
+
+/* ---------- Rubrikrad: [‹] Titel … snabbknappar [≡] ---------- */
+.head {
+  position: sticky; top: 0; z-index: 20;
+  display: flex; align-items: center; gap: 2px;
+  padding: calc(env(safe-area-inset-top) + 10px) var(--s4) 8px;
+  background: var(--bg);
+}
+.head .title { flex: 1; min-width: 0; padding: 0 var(--s2); font-size: var(--fs-title); font-weight: 600; letter-spacing: -0.02em; line-height: 1.15; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.head > .icon-btn + .icon-btn, .head > .title + .icon-btn { margin-left: 6px; }
+
+/* Startsidan: appens logga + namn i stället för bakåt + titel */
+.brand { flex: 1; min-width: 0; display: flex; align-items: center; gap: 11px; color: inherit; text-decoration: none; }
+.logo { width: 34px; height: 34px; flex: none; border-radius: 50%; background: var(--acc); box-shadow: var(--shadow-acc); position: relative; display: grid; place-items: center; color: var(--acc-ink); overflow: hidden; }
+.logo img, .logo svg { width: 100%; height: 100%; }
+.wordmark { font-size: var(--fs-title); font-weight: 600; letter-spacing: -0.02em; line-height: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.head .title small { display: block; font-size: var(--fs-sm); font-weight: 500; color: var(--dim); letter-spacing: 0; }
+.head .title:first-child { padding-left: 0; }
+.head-wrap { max-width: var(--page-max); margin: 0 auto; }
+
+/* Rund ikonknapp: vit med kant och mjuk skugga (punchclock/hjärnsläpp) */
+.icon-btn {
+  position: relative; flex: none;
+  width: 40px; height: 40px; padding: 0;
+  display: inline-flex; align-items: center; justify-content: center;
+  border: 1px solid var(--line); border-radius: 50%; background: var(--surface); color: var(--text);
+  box-shadow: var(--shadow-sm); text-decoration: none;
+}
+.icon-btn:hover, .icon-btn[aria-expanded="true"] { border-color: var(--acc); }
+.icon-btn svg { width: 20px; height: 20px; }
+.icon-btn.plain { border-color: transparent; background: transparent; box-shadow: none; }
+
+/* Lägesknapp (t.ex. P/W): kantlinje av, fylld accent på */
+.icon-btn.toggle { font-weight: 700; font-size: 16px; }
+.icon-btn.toggle.on { background: var(--acc); border-color: var(--acc); color: var(--acc-ink); }
+
+/* Räknare på en knapp */
+.count {
+  position: absolute; top: 5px; right: 4px;
+  min-width: 16px; height: 16px; padding: 0 4px;
+  border-radius: 8px; background: var(--warn); color: var(--surface);
+  font-size: 11px; font-weight: 700; line-height: 16px; text-align: center;
+}
+
+/* ---------- Hamburgermeny ---------- */
+.scrim { position: fixed; inset: 0; z-index: 40; background: var(--scrim); }
+.menu {
+  position: fixed; z-index: 41;
+  top: calc(env(safe-area-inset-top) + 62px); right: max(var(--s4), calc((100vw - var(--page-max)) / 2 + var(--s4)));
+  width: min(300px, calc(100vw - 2 * var(--s4)));
+  max-height: calc(100dvh - 90px); overflow: auto;
+  padding: 8px; border-radius: var(--r-lg);
+  background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow-pop);
+  display: flex; flex-direction: column;
+}
+.menu[hidden], .scrim[hidden] { display: none; }
+.menu a, .menu button {
+  min-height: 42px; padding: 0 10px; border: 0; border-radius: 11px;
+  display: flex; align-items: center; gap: var(--s3);
+  background: transparent; color: var(--text); text-decoration: none; text-align: left; font-size: var(--fs); font-weight: 500;
+}
+.menu a:hover, .menu button:hover { background: var(--surface-2); }
+.menu [aria-current="page"] { background: var(--acc-soft); color: var(--acc-text); font-weight: 650; }
+.menu svg { width: 22px; height: 22px; color: var(--dim); }
+.menu [aria-current="page"] svg { color: var(--acc-text); }
+.menu .quiet { color: var(--dim); }
+.menu hr { margin: 6px 8px; }
+.menu .menu-foot { padding: 6px var(--s3) 4px; font-size: var(--fs-xs); color: var(--dim); }
+
+/* ---------- Kort och rader ---------- */
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); box-shadow: var(--shadow); overflow: hidden; }
+.card.pad, .pad { padding: var(--s3) var(--s4); }
+.card > h2, .sech {
+  display: flex; align-items: center; gap: var(--s2);
+  padding: 14px var(--s4) 6px;
+  font-size: var(--fs-lg); font-weight: 600; letter-spacing: -.01em; color: var(--text);
+}
+.sech { font-size: 12.5px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; color: var(--dim); }
+.sech { padding: var(--s1) var(--s1) 0; }
+.card > h2 > span, .sech > span { flex: 1; }
+.card > h2 a, .sech a { font-size: var(--fs-sm); font-weight: 600; letter-spacing: 0; text-transform: none; text-decoration: none; color: var(--acc-text); }
+
+.row {
+  display: flex; align-items: center; gap: 10px;
+  min-height: var(--tap); padding: 8px var(--s4);
+  border-top: 1px solid var(--surface-2);
+  color: inherit; text-decoration: none; background: transparent;
+  width: 100%; border-left: 0; border-right: 0; border-bottom: 0; text-align: left;
+}
+.card > .row:first-child, .card > h2 + .row, .rows > .row:first-child { border-top: 0; }
+a.row:hover, button.row:hover { background: color-mix(in srgb, var(--surface-2) 50%, transparent); }
+.row .main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.row .text { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.row .meta { font-size: var(--fs-sm); color: var(--dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.row .lead { flex: none; min-width: 46px; font-size: 14px; color: var(--dim); font-variant-numeric: tabular-nums; }
+.row .trail { flex: none; font-size: 14px; color: var(--dim); font-variant-numeric: tabular-nums; }
+.row .trail.strong { color: var(--text); font-weight: 600; font-size: var(--fs-md); }
+.row.done .text { text-decoration: line-through; opacity: .45; }
+.chev { color: var(--dim); width: 18px; height: 18px; }
+
+/* Bocka av */
+.check {
+  flex: none; width: 24px; height: 24px; padding: 0;
+  border: 2px solid var(--line); border-radius: 50%; background: transparent;
+  display: inline-flex; align-items: center; justify-content: center; color: #FFF;
+}
+.check.sq { border-radius: 7px; }
+.check[aria-checked="true"], .check.on { background: var(--ok); border-color: var(--ok); }
+.check svg { width: 14px; height: 14px; }
+
+/* ---------- Märken ---------- */
+.pill {
+  display: inline-flex; align-items: center; gap: 5px; flex: none;
+  padding: 1px 8px; border-radius: 9px;
+  font-size: var(--fs-xs); font-weight: 600; white-space: nowrap;
+  background: var(--surface-2); color: var(--dim);
+}
+.pill.acc { background: var(--acc-soft); color: var(--acc-text); }
+.pill.ok { background: var(--ok-soft); color: var(--ok); }
+.pill.warn { background: var(--warn-soft); color: var(--warn); }
+.pill.danger { background: var(--danger-soft); color: var(--danger); }
+.pill.dot::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+
+/* ---------- Knappar ---------- */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  min-height: 40px; padding: 0 var(--s4);
+  border: 1px solid transparent; border-radius: var(--r-sm);
+  background: var(--acc); color: var(--acc-ink);
+  font-size: 14px; font-weight: 600; text-decoration: none; white-space: nowrap;
+}
+.btn:hover { filter: brightness(1.06); }
+.btn:active { opacity: .6; }
+.btn.ghost { background: var(--surface); color: var(--text); border-color: var(--line); }
+.btn.ghost:hover { border-color: var(--acc); filter: none; }
+.btn.quiet { background: var(--surface-2); color: var(--text); }
+.btn.big { width: 100%; min-height: 46px; font-size: var(--fs-md); }
+.btn.danger { background: var(--danger); color: #FFF; }
+.btn.ghost.danger { background: transparent; color: var(--danger); }
+.btn.sm { min-height: 36px; padding: 0 var(--s3); font-size: 14px; }
+.btn.block { width: 100%; }
+.btn svg { width: 18px; height: 18px; }
+
+/* Svävande knapp nere till höger */
+.fab {
+  position: fixed; z-index: 30;
+  right: max(var(--s5), calc((100vw - var(--page-max)) / 2 + var(--s5)));
+  bottom: calc(env(safe-area-inset-bottom) + var(--s6));
+  width: 60px; height: 60px; border: 0; border-radius: 50%;
+  background: var(--acc); color: var(--acc-ink); box-shadow: var(--shadow-pop);
+  display: flex; align-items: center; justify-content: center;
+}
+.fab svg { width: 26px; height: 26px; }
+
+/* Segmentknapp */
+/* Får alternativen inte plats sveper man i sidled — knapparna krymper aldrig
+   under sin text (annars hamnar texterna ovanpå varandra). */
+.seg { display: inline-flex; max-width: 100%; padding: 3px; gap: 2px; border-radius: 10px; background: var(--surface-2);
+  overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+.seg::-webkit-scrollbar { display: none; }
+.seg > * { flex: 0 0 auto; }
+.seg button, .seg a {
+  min-height: 36px; padding: 0 var(--s3); border: 0; border-radius: 8px;
+  background: transparent; color: var(--dim); font-size: 14px; font-weight: 600; text-decoration: none;
+  display: inline-flex; align-items: center;
+}
+.seg [aria-pressed="true"], .seg [aria-current="page"], .seg .on { background: var(--surface); color: var(--text); box-shadow: var(--shadow); }
+.seg.block { display: flex; } .seg.block > * { flex: 1 0 auto; justify-content: center; }
+
+/* Chips (filter) */
+.chip {
+  min-height: 34px; padding: 0 14px; border-radius: 17px;
+  border: 1px solid var(--line); background: var(--surface); color: var(--text);
+  font-size: 14px; display: inline-flex; align-items: center; gap: 6px; text-decoration: none;
+}
+.chip[aria-pressed="true"], .chip.on { background: var(--acc-soft); border-color: transparent; font-weight: 600; }
+
+/* ---------- Formulär ---------- */
+.label { display: block; margin: 0 0 var(--s1) var(--s1); font-size: var(--fs-sm); font-weight: 600; color: var(--dim); }
+.input, .select, .textarea {
+  width: 100%; min-height: 44px; padding: 9px 13px; font-size: 16px;
+  border: 1.5px solid var(--line); border-radius: 10px; background: var(--surface); color: var(--text);
+  outline: none;
+}
+.textarea { min-height: 96px; resize: vertical; line-height: var(--lh); }
+.select { appearance: none; padding-right: 36px; background-image: linear-gradient(45deg, transparent 50%, var(--dim) 50%), linear-gradient(-45deg, transparent 50%, var(--dim) 50%); background-position: calc(100% - 19px) 50%, calc(100% - 14px) 50%; background-size: 5px 5px; background-repeat: no-repeat; }
+.input:focus, .select:focus, .textarea:focus { border-color: var(--acc); }
+.input::placeholder, .textarea::placeholder { color: var(--dim); }
+.input[aria-invalid="true"] { border-color: var(--danger); }
+.hint { margin: var(--s1) var(--s1) 0; font-size: var(--fs-sm); color: var(--dim); }
+.hint.error { color: var(--danger); }
+.fieldset { display: flex; flex-direction: column; gap: var(--s3); }
+
+/* Fält med knapp i (sök, inkast) */
+.field {
+  display: flex; align-items: center; gap: var(--s2);
+  min-height: 48px; padding: 4px 4px 4px 16px;
+  border: 1.5px solid var(--line); border-radius: var(--r); background: var(--surface); color: var(--dim); box-shadow: var(--shadow);
+}
+.field:focus-within { border-color: var(--acc); }
+.field input { flex: 1; min-width: 0; border: 0; background: transparent; color: var(--text); outline: none; padding: 8px 0; }
+.field input::placeholder { color: var(--dim); }
+.field .btn { min-height: 38px; padding: 0 var(--s3); }
+.field > svg { width: 20px; height: 20px; }
+
+/* Växel (av/på) */
+.switch { position: relative; width: 48px; height: 28px; flex: none; appearance: none; margin: 0; border-radius: 14px; background: var(--line); transition: background .15s; }
+.switch::after { content: ""; position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; border-radius: 50%; background: #FFF; box-shadow: var(--shadow); transition: transform .15s; }
+.switch:checked { background: var(--acc); }
+.switch:checked::after { transform: translateX(20px); }
+
+/* Fotoyta / dra-och-släpp */
+.drop {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--s2);
+  min-height: 140px; padding: var(--s4); text-align: center;
+  border: 1.5px dashed var(--line); border-radius: var(--r); background: var(--surface); color: var(--dim);
+}
+.drop.over { border-color: var(--acc); background: var(--acc-soft); color: var(--text); }
+
+/* ---------- Status och återkoppling ---------- */
+.banner {
+  display: flex; align-items: center; gap: 10px;
+  min-height: var(--tap); padding: 6px 8px 6px 14px; border-radius: 10px;
+  background: var(--surface-2); color: var(--text);
+}
+.banner p { flex: 1; font-size: var(--fs-md); }
+.banner a, .banner button.link { color: inherit; font-weight: 600; text-decoration: none; min-height: var(--tap); display: inline-flex; align-items: center; padding: 0 6px; background: none; border: 0; }
+.banner.ok { background: var(--ok-soft); color: var(--ok); }
+.banner.warn { background: var(--warn-soft); color: var(--warn); }
+.banner.danger { background: var(--danger-soft); color: var(--danger); }
+.banner.acc { background: var(--acc-soft); }
+
+.toast {
+  position: fixed; z-index: 60; left: 50%; transform: translateX(-50%);
+  bottom: calc(env(safe-area-inset-bottom) + var(--s6));
+  max-width: calc(100vw - 2 * var(--s5));
+  display: flex; align-items: center; gap: var(--s3);
+  min-height: var(--tap); padding: 6px 8px 6px var(--s4); border-radius: 10px;
+  background: var(--surface); color: var(--text); border: 1px solid var(--line); box-shadow: var(--shadow-pop); font-size: var(--fs-md);
+}
+.toast button { min-height: 36px; padding: 0 10px; border: 0; border-radius: 8px; background: transparent; color: var(--acc-text); font-weight: 700; }
+.toast.danger { background: var(--danger); color: #FFF; border-color: var(--danger); }
+
+.empty { padding: var(--s8) var(--s4); text-align: center; color: var(--dim); }
+.empty b { display: block; color: var(--text); font-size: var(--fs); margin-bottom: var(--s1); }
+
+.spinner { width: 20px; height: 20px; border-radius: 50%; border: 2.5px solid var(--line); border-top-color: var(--acc); animation: ds-spin .8s linear infinite; flex: none; }
+@keyframes ds-spin { to { transform: rotate(360deg); } }
+
+.bar { height: 8px; border-radius: 4px; background: var(--surface-2); overflow: hidden; }
+.bar > i { display: block; height: 100%; border-radius: inherit; background: var(--acc); }
+.bar.thick { height: 14px; border-radius: 7px; }
+
+/* Steg (1 → 2 → 3) */
+.steps { display: flex; gap: var(--s2); list-style: none; padding: 0; counter-reset: step; }
+.steps li { flex: 1; display: flex; align-items: center; gap: 6px; font-size: var(--fs-sm); color: var(--dim); counter-increment: step; }
+.steps li::before { content: counter(step); width: 22px; height: 22px; border-radius: 50%; flex: none; display: inline-flex; align-items: center; justify-content: center; font-size: var(--fs-xs); font-weight: 700; background: var(--surface-2); }
+.steps li[aria-current="step"] { color: var(--text); font-weight: 600; }
+.steps li[aria-current="step"]::before { background: var(--acc); color: var(--acc-ink); }
+.steps li.done::before { content: "✓"; background: var(--ok-soft); color: var(--ok); }
+
+/* ---------- Nyckeltal ---------- */
+.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: var(--s2); }
+.kpi { display: flex; flex-direction: column; padding: 13px 14px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); box-shadow: var(--shadow); color: var(--text); text-decoration: none; }
+.kpi small { font-size: 11.5px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; color: var(--dim); }
+.kpi b { font-size: 22px; font-weight: 650; letter-spacing: -0.02em; line-height: 1.2; font-variant-numeric: tabular-nums; }
+.kpi span { font-size: var(--fs-sm); color: var(--dim); }
+.kpi .ok { color: var(--ok); } .kpi .warn { color: var(--warn); } .kpi .danger { color: var(--danger); }
+
+/* ---------- Ark (dialog nerifrån) ---------- */
+dialog.sheet {
+  width: 100%; max-width: var(--page-max); max-height: 92dvh; margin: auto auto 0; padding: 0;
+  border: 0; border-radius: var(--r-lg) var(--r-lg) 0 0; background: var(--bg); color: var(--text);
+}
+dialog.sheet::backdrop { background: var(--scrim); }
+dialog.sheet .sheet-head { display: flex; align-items: center; gap: var(--s2); padding: var(--s2) var(--s2) var(--s2) var(--s4); }
+dialog.sheet .sheet-head h2 { flex: 1; }
+dialog.sheet .sheet-body { padding: 0 var(--s4) calc(env(safe-area-inset-bottom) + var(--s5)); display: flex; flex-direction: column; gap: var(--s3); }
+@media (min-width: 700px) { dialog.sheet { margin: auto; border-radius: var(--r-lg); } }
+
+/* ---------- Inloggning ---------- */
+.login { min-height: 100dvh; display: flex; align-items: center; justify-content: center; padding: var(--s5); }
+.login form { width: 100%; max-width: 360px; display: flex; flex-direction: column; gap: var(--s3); }
+.login h1 { margin-bottom: var(--s2); }
+
+/* ---------- Regel: text bryts aldrig till två rader ----------
+ * Allt i gränssnittet håller sig på en rad. För långt kortas med …
+ * Behövs hela texten: visa den på en egen sida eller i ett ark, aldrig som radbrytning. */
+.head .title, .head .title small, .sech, .card > h2, .row .text, .row .meta, .row .lead, .row .trail,
+.pill, .btn, .chip, .menu a, .menu button, .label, .hint, .banner p, .toast span,
+.kpi small, .kpi b, .kpi span, .steps li, .empty b, .field input, .tab, .icon-btn, .wordmark {
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0;
+}
+.kpi { min-width: 0; }
+.steps li { display: flex; }
+.seg > * { white-space: nowrap; }

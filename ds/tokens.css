@@ -1,0 +1,95 @@
+/* designsystem · tokens.css
+ * Alla värden appar och komponenter bygger på — utseendet från punchclock och
+ * hjärnsläpp: grå botten, vita kort med kant och mjuk skugga, systemets typsnitt.
+ * Appen sätter bara --accent (och --accent-ink om accenten är ljus) i app.css.
+ * Mörkt läge följer enheten. Ändra aldrig den här filen i en app — den kopieras
+ * in från ottoherdy/designsystem och CI kontrollerar den. */
+
+:root {
+  /* App-accent: sätts av appen. Standard = neutral skiffer (hjälpmedel). */
+  --accent: #4F5A68;
+  --accent-ink: #FFFFFF;
+
+  /* Ytor och text */
+  --bg: #EFEFF2;
+  --surface: #FFFFFF;
+  --surface-2: #E6E7EB;
+  --line: #D9DADF;
+  --text: #2A2B28;
+  --dim: #696A63;
+
+  /* Härledd accent: --acc fyller, --acc-text är text/länk på yta, --acc-soft är tonad bakgrund */
+  --acc: var(--accent);
+  --acc-ink: var(--accent-ink);
+  --acc-text: color-mix(in oklab, var(--accent) 82%, #000);
+  --acc-soft: color-mix(in srgb, var(--accent) 14%, #FFF);
+
+  /* Status — samma i alla appar */
+  --ok: #2E6E45;      --ok-soft: #E1EFE4;
+  --warn: #7A5A10;    --warn-soft: #FAF0D2;
+  --danger: #B4472E;  --danger-soft: #F9E4DE;
+
+  --shadow: 0 4px 16px rgba(42, 43, 40, .06);
+  --shadow-sm: 0 2px 8px rgba(42, 43, 40, .06);
+  --shadow-pop: 0 18px 50px rgba(0, 0, 0, .22);
+  --shadow-acc: 0 6px 16px color-mix(in srgb, var(--acc) 28%, transparent);
+  --scrim: rgba(0, 0, 0, .18);
+
+  /* Typografi: systemets typsnitt (SF på Apple) — inget att ladda */
+  --font: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+  --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --fs-xs: 11.5px;
+  --fs-sm: 13px;
+  --fs-md: 14.5px;
+  --fs: 15px;
+  --fs-lg: 17px;
+  --fs-title: 20px;
+  --fs-big: 34px;
+  --lh: 1.45;
+
+  /* Avstånd — varje glapp i en app är ett av dessa */
+  --s1: 4px;
+  --s2: 8px;
+  --s3: 12px;
+  --s4: 16px;
+  --s5: 20px;
+  --s6: 24px;
+  --s8: 32px;
+
+  /* Form */
+  --r-sm: 9px;
+  --r: 14px;
+  --r-lg: 16px;
+  --r-pill: 999px;
+  --tap: 44px;
+  --page-max: 600px;
+
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #17181A;
+    --surface: #212226;
+    --surface-2: #2A2B30;
+    --line: #33343A;
+    --text: #ECEDEF;
+    --dim: #9DA0A5;
+
+    --acc: color-mix(in oklab, var(--accent) 72%, #FFF);
+    --acc-ink: #17120C;
+    --acc-text: color-mix(in oklab, var(--accent) 60%, #FFF);
+    --acc-soft: color-mix(in srgb, var(--accent) 24%, #212226);
+
+    --ok: #8FD0A3;      --ok-soft: #1D3125;
+    --warn: #DCCF8F;    --warn-soft: #2C2A1E;
+    --danger: #E0765A;  --danger-soft: #3A2019;
+
+    --shadow: 0 4px 16px rgba(0, 0, 0, .35);
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, .35);
+    --shadow-pop: 0 18px 50px rgba(0, 0, 0, .55);
+    --scrim: rgba(0, 0, 0, .5);
+
+    color-scheme: dark;
+  }
+}

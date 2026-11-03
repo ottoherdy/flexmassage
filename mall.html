@@ -1,88 +1,58 @@
+<!doctype html>
+<html lang="sv">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Lediga massagetider</title>
-<meta name="claude:viewport-fit-sides" content="cover">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,650&family=Figtree:wght@400;500;600&display=swap">
+<meta name="theme-color" content="#EFEFF2" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#17181A" media="(prefers-color-scheme: dark)">
+<link rel="stylesheet" href="ds/tokens.css">
+<link rel="stylesheet" href="ds/base.css">
+<link rel="stylesheet" href="ds/components.css">
 <style>
-/* Layout: sticky filter bar over a single day-by-day list; each row = one start time, lengths as chips */
-:root {
-  --bg: #f6f7f5;
-  --surface: #ffffff;
-  --fg: #1d2421;
-  --muted: #5f6b66;
-  --line: #dfe4e1;
-  --accent: #2f6f5e;
-  --accent-soft: #e2efea;
-  --today: #b2562f;
-  --display: "Fraunces", Georgia, serif;
-  --body: "Figtree", system-ui, -apple-system, sans-serif;
-}
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
-  --bg: #141917; --surface: #1c2320; --fg: #e6ece9; --muted: #95a39d; --line: #2c3632;
-  --accent: #7cc4ad; --accent-soft: #23362f; --today: #e39a74; color-scheme: dark } }
-:root[data-theme="dark"] {
-  --bg: #141917; --surface: #1c2320; --fg: #e6ece9; --muted: #95a39d; --line: #2c3632;
-  --accent: #7cc4ad; --accent-soft: #23362f; --today: #e39a74; color-scheme: dark }
-
-body { background: var(--bg); color: var(--fg); font-family: var(--body); font-size: 15px; line-height: 1.45; }
-body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
-.wrap { max-width: 860px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
-header { padding-block: 28px 8px; display: grid; gap: 6px; }
-h1 { font-family: var(--display); font-weight: 650; font-size: clamp(1.7rem, 4vw, 2.3rem); margin: 0; text-wrap: balance; letter-spacing: -0.01em; }
-.sub { color: var(--muted); margin: 0; max-width: 62ch; }
-.sub a { color: var(--accent); }
-
-.filters { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg); padding-block: 12px; border-bottom: 1px solid var(--line); }
-.frow { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
-label { display: grid; gap: 3px; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); font-weight: 600; }
-select { font: inherit; font-size: 0.95rem; text-transform: none; letter-spacing: 0; color: var(--fg); background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; min-width: 0; }
-select:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-.summary { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; margin-top: 10px; font-size: 0.85rem; color: var(--muted); }
-.summary button { font: inherit; background: none; border: 0; color: var(--accent); cursor: pointer; padding: 0; text-decoration: underline; }
-
-.day { padding-block: 22px 4px; }
-.day h2 { font-family: var(--display); font-weight: 500; font-size: 1.25rem; margin: 0 0 8px; display: flex; align-items: baseline; gap: 10px; }
-.day h2 .n { font-family: var(--body); font-size: 0.8rem; color: var(--muted); font-weight: 500; }
-.day h2 .tag { font-family: var(--body); font-size: 0.72rem; color: var(--today); text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600; }
-.list { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
-.slot { display: grid; grid-template-columns: 58px minmax(0, 1fr) auto; gap: 4px 14px; padding: 11px 14px; border-top: 1px solid var(--line); align-items: start; }
-.slot:first-child { border-top: 0; }
-.time { font-weight: 600; font-variant-numeric: tabular-nums; font-size: 1.05rem; padding-top: 1px; }
-.where { min-width: 0; }
-.where b { font-weight: 600; }
-.where .who { color: var(--muted); }
-.where .kind { display: block; color: var(--muted); font-size: 0.85rem; }
-.lens { display: flex; flex-wrap: wrap; gap: 4px; justify-content: flex-end; max-width: 210px; }
-.chip { font-size: 0.78rem; font-variant-numeric: tabular-nums; background: var(--accent-soft); color: var(--accent); border-radius: 999px; padding: 2px 8px; white-space: nowrap; font-weight: 500; }
-.empty { padding: 40px 0; color: var(--muted); text-align: center; }
-footer { color: var(--muted); font-size: 0.8rem; padding-block: 28px 40px; }
-@media (max-width: 520px) {
-  .slot { grid-template-columns: 52px minmax(0, 1fr); }
-  .lens { grid-column: 2; justify-content: flex-start; max-width: none; }
-}
+/* App-specific styles only; colours, type and components come from ds/.
+   Hjälpmedel: uses the system's default neutral accent (no --accent here). */
+.flex-sub { color: var(--dim); font-size: var(--fs-sm); padding: 0 var(--s1); }
+.flex-filters { display: flex; flex-direction: column; gap: var(--s3); }
+.flex-selects { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: var(--s3); }
+.flex-selects > * { min-width: 0; }
+.flex-summary { font-size: var(--fs-sm); color: var(--dim); }
+.flex-day { display: flex; flex-direction: column; gap: var(--s2); margin-top: var(--s2); }
+.logo svg { width: 22px; height: 22px; }
+.flex-day .sech > .pill { flex: none; }
+.flex-day .sech small { flex: none; font-weight: 500; letter-spacing: 0; text-transform: none; }
+/* The start time is the row's lead: make it read as the primary value */
+.row .lead.flex-time { color: var(--text); font-weight: 650; font-size: var(--fs); }
+.row .text .flex-who { color: var(--dim); }
+.flex-foot { color: var(--dim); font-size: var(--fs-sm); padding: var(--s4) var(--s1) 0; }
 </style>
 
-<div class="wrap">
-  <header>
-    <h1>Lediga massagetider</h1>
-    <p class="sub">Alla bokningsbara tider hos Flexmassage på ett ställe. Senast hämtat <span id="fetched"></span>. Boka på <a href="https://baraboka.se/flexmassage/mobil-new/index.php" target="_blank" rel="noopener">baraboka.se</a>.</p>
-  </header>
-</div>
-<div class="filters">
-  <div class="wrap">
-    <div class="frow">
-      <label for="f-loc">Mottagning<select id="f-loc"></select></label>
-      <label for="f-kind">Behandling<select id="f-kind"></select></label>
-      <label for="f-len">Minst längd<select id="f-len"></select></label>
-      <label for="f-staff">Massör<select id="f-staff"></select></label>
-      <label for="f-day">Dag<select id="f-day"></select></label>
+<header class="head-wrap">
+  <div class="head">
+    <div class="brand">
+      <span class="logo" aria-hidden="true"><svg viewBox="0 0 34 34" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="17" cy="17" r="11"/><path d="M17 11v6l4 3"/></svg></span>
+      <span class="wordmark">Lediga tider</span>
     </div>
-    <div class="summary"><span id="count"></span><button id="reset" type="button">Rensa filter</button></div>
   </div>
-</div>
-<main class="wrap" id="out"></main>
-<div class="wrap"><footer>Tiderna kan ha hunnit bokas sedan de hämtades. Varje rad visar en starttid; de gröna etiketterna är behandlingslängderna som går att boka från den tiden.</footer></div>
+</header>
+
+<main class="page">
+  <p class="flex-sub">Alla bokningsbara tider hos Flexmassage på ett ställe. Senast hämtat <span id="fetched"></span>. Boka på <a href="https://baraboka.se/flexmassage/mobil-new/index.php" target="_blank" rel="noopener">baraboka.se</a>.</p>
+
+  <section class="card pad flex-filters" aria-label="Filter">
+    <div class="flex-selects">
+      <div><label class="label" for="f-loc">Mottagning</label><select class="select" id="f-loc"></select></div>
+      <div><label class="label" for="f-kind">Behandling</label><select class="select" id="f-kind"></select></div>
+      <div><label class="label" for="f-staff">Massör</label><select class="select" id="f-staff"></select></div>
+    </div>
+    <div><span class="label" id="l-len">Minst längd</span><div class="seg" role="group" aria-labelledby="l-len" id="f-len"></div></div>
+    <div><span class="label" id="l-day">Dag</span><div class="seg" role="group" aria-labelledby="l-day" id="f-day"></div></div>
+    <div class="spread"><span class="flex-summary truncate" id="count"></span><button class="btn ghost sm" id="reset" type="button">Rensa filter</button></div>
+  </section>
+
+  <div id="out"></div>
+
+  <p class="flex-foot">Tiderna kan ha hunnit bokas sedan de hämtades. Varje rad visar en starttid; längderna till höger är behandlingarna som går att boka från den tiden.</p>
+</main>
 
 <script>
 const DATA = /*DATA*/{"hamtat":"","tider":[]}/*END*/;
@@ -95,6 +65,7 @@ const DAYS = ["söndag","måndag","tisdag","onsdag","torsdag","fredag","lördag"
 const MONTHS = ["januari","februari","mars","april","maj","juni","juli","augusti","september","oktober","november","december"];
 const today = new Date().toISOString().slice(0, 10);
 const first = s => s.charAt(0).toUpperCase() + s.slice(1);
+const shortDay = d => { if (d === today) return "Idag"; const x = new Date(d + "T12:00"); return `${first(DAYS[x.getDay()].slice(0, 3))} ${x.getDate()}/${x.getMonth() + 1}`; };
 const dayLabel = d => { const x = new Date(d + "T12:00"); return `${DAYS[x.getDay()]} ${x.getDate()} ${MONTHS[x.getMonth()]}`; };
 
 const rows = DATA.tider.map(t => ({ ...t, kind: kindOf(t.behandling), len: lenOf(t.behandling) }));
@@ -114,25 +85,36 @@ if (DATA.server) setInterval(async () => {
 
 const $ = id => document.getElementById(id);
 const uniq = a => [...new Set(a)];
+// Filters are either <select> or a .seg of buttons with data-v; these helpers hide the difference.
+const isSeg = el => el.classList.contains("seg");
+const segBtns = el => [...el.querySelectorAll("button")];
+const getV = f => { const el = $(f); return isSeg(el) ? ((segBtns(el).find(b => b.getAttribute("aria-pressed") === "true") || {}).dataset?.v ?? "") : el.value; };
+const setV = (f, v) => { const el = $(f); if (isSeg(el)) segBtns(el).forEach(b => b.setAttribute("aria-pressed", String(b.dataset.v === v))); else el.value = v; };
+const hasV = (f, v) => { const el = $(f); return isSeg(el) ? segBtns(el).some(b => b.dataset.v === v) : [...el.options].some(o => o.value === v); };
 function fill(sel, opts, all) {
+  if (isSeg(sel)) {
+    sel.innerHTML = `<button type="button" data-v="" aria-pressed="true">${all}</button>` +
+      opts.map(o => `<button type="button" data-v="${o.v}" aria-pressed="false">${o.t}</button>`).join("");
+    return;
+  }
   sel.innerHTML = `<option value="">${all}</option>` + opts.map(o => typeof o === "string"
     ? `<option value="${o}">${o}</option>` : o.group
       ? `<optgroup label="${o.group}">${o.items.map(i => `<option value="${i}">${cap(i)}</option>`).join("")}</optgroup>`
       : `<option value="${o.v}">${o.t}</option>`).join("");
 }
 const locs = uniq(rows.map(r => r.mottagning));
-fill($("f-loc"), ["Stockholm","Göteborg","Kungsbacka","Övriga orter"].map(c => ({ group: c, items: locs.filter(l => city(l) === c).sort() })).filter(g => g.items.length), "Alla mottagningar");
-fill($("f-kind"), uniq(rows.map(r => r.kind)).sort(), "Alla behandlingar");
-fill($("f-len"), uniq(rows.map(r => r.len)).sort((a, b) => a - b).map(n => ({ v: n, t: `${n} min` })), "Alla längder");
-fill($("f-staff"), uniq(rows.map(r => r.massor)).sort((a, b) => a.localeCompare(b, "sv")), "Alla massörer");
-fill($("f-day"), uniq(rows.map(r => r.datum)).sort().map(d => ({ v: d, t: first(dayLabel(d)) })), "Alla dagar");
+fill($("f-loc"), ["Stockholm","Göteborg","Kungsbacka","Övriga orter"].map(c => ({ group: c, items: locs.filter(l => city(l) === c).sort() })).filter(g => g.items.length), "Alla");
+fill($("f-kind"), uniq(rows.map(r => r.kind)).sort(), "Alla");
+fill($("f-len"), uniq(rows.map(r => r.len)).sort((a, b) => a - b).map(n => ({ v: String(n), t: `${n} min` })), "Alla");
+fill($("f-staff"), uniq(rows.map(r => r.massor)).sort((a, b) => a.localeCompare(b, "sv")), "Alla");
+fill($("f-day"), uniq(rows.map(r => r.datum)).sort().map(d => ({ v: d, t: shortDay(d) })), "Alla");
 
 const F = ["f-loc","f-kind","f-len","f-staff","f-day"];
-try { const s = JSON.parse(localStorage.getItem("flex-filter") || "{}"); F.forEach(f => { if (s[f] && [...$(f).options].some(o => o.value === s[f])) $(f).value = s[f]; }); } catch (e) {}
+try { const s = JSON.parse(localStorage.getItem("flex-filter") || "{}"); F.forEach(f => { if (s[f] && hasV(f, s[f])) setV(f, s[f]); }); } catch (e) {}
 
 function render() {
-  const [loc, kind, len, staff, day] = F.map(f => $(f).value);
-  try { localStorage.setItem("flex-filter", JSON.stringify(Object.fromEntries(F.map(f => [f, $(f).value])))); } catch (e) {}
+  const [loc, kind, len, staff, day] = F.map(getV);
+  try { localStorage.setItem("flex-filter", JSON.stringify(Object.fromEntries(F.map(f => [f, getV(f)])))); } catch (e) {}
   const hit = rows.filter(r => (!loc || r.mottagning === loc) && (!kind || r.kind === kind) && (!len || r.len >= +len)
     && (!staff || r.massor === staff) && (!day || r.datum === day));
   const slots = new Map();
@@ -146,13 +128,16 @@ function render() {
     .forEach(s => { if (!byDay.has(s.datum)) byDay.set(s.datum, []); byDay.get(s.datum).push(s); });
   $("count").textContent = `${slots.size} starttider på ${byDay.size} dagar`;
   $("out").innerHTML = byDay.size ? [...byDay].map(([d, list]) => `
-    <section class="day"><h2>${first(dayLabel(d))}${d === today ? '<span class="tag">Idag</span>' : ""}<span class="n">${list.length} tider</span></h2>
-    <div class="list">${list.map(s => `<div class="slot"><div class="time">${s.start}</div>
-      <div class="where"><b>${cap(s.mottagning)}</b> <span class="who">· ${s.massor}</span><span class="kind">${s.kind}</span></div>
-      <div class="lens">${[...s.lens].sort((a, b) => a - b).map(n => `<span class="chip">${n} min</span>`).join("")}</div></div>`).join("")}</div></section>`).join("")
-    : `<p class="empty">Inga lediga tider med de här filtren. Prova att ta bort ett filter.</p>`;
+    <section class="flex-day"><h2 class="sech"><span>${first(dayLabel(d))}</span>${d === today ? '<span class="pill acc">Idag</span>' : ""}<small>${list.length} tider</small></h2>
+    <div class="card">${list.map(s => `<div class="row"><span class="lead flex-time">${s.start}</span>
+      <span class="main"><span class="text">${cap(s.mottagning)} <span class="flex-who">· ${s.massor}</span></span><span class="meta">${s.kind}</span></span>
+      <span class="trail">${[...s.lens].sort((a, b) => a - b).join(" · ")} min</span></div>`).join("")}</div></section>`).join("")
+    : `<div class="card empty"><b>Inga lediga tider</b>Prova att ta bort ett filter.</div>`;
 }
-F.forEach(f => $(f).addEventListener("change", render));
-$("reset").addEventListener("click", () => { F.forEach(f => $(f).value = ""); render(); });
+F.forEach(f => $(f).addEventListener(isSeg($(f)) ? "click" : "change", e => {
+  if (isSeg($(f))) { const b = e.target.closest("button"); if (!b) return; setV(f, b.dataset.v); }
+  render();
+}));
+$("reset").addEventListener("click", () => { F.forEach(f => setV(f, "")); render(); });
 render();
 </script>

@@ -1,0 +1,49 @@
+/* designsystem · base.css — grundstil för element. Kräver tokens.css. */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  min-height: 100dvh;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: var(--fs);
+  line-height: var(--lh);
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+}
+
+h1, h2, h3, h4, p, ul, ol, figure { margin: 0; }
+h1 { font-size: var(--fs-title); font-weight: 650; letter-spacing: -0.015em; line-height: 1.15; }
+h2 { font-size: var(--fs-lg); font-weight: 650; letter-spacing: -0.01em; }
+h3 { font-size: var(--fs); font-weight: 600; }
+ul, ol { padding-left: 1.2em; }
+
+a { color: var(--acc-text); text-underline-offset: 2px; }
+img, svg, video { display: block; max-width: 100%; }
+svg { flex: none; }
+
+button, input, select, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+button:disabled { cursor: default; opacity: .5; }
+
+:focus-visible { outline: 2px solid var(--acc); outline-offset: 2px; border-radius: 4px; }
+
+::selection { background: var(--acc-soft); }
+
+hr { border: 0; border-top: 1px solid var(--line); margin: var(--s3) 0; }
+
+code, kbd, pre { font-family: var(--mono); font-size: .9em; }
+
+.num { font-variant-numeric: tabular-nums; }
+.dim { color: var(--dim); }
+.small { font-size: var(--fs-sm); }
+.truncate { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}
