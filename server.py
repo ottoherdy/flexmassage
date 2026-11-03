@@ -3,10 +3,15 @@
 
 Miljövariabler: PORT (8080), INTERVALL_MIN (30), OUT_DIR (/app/data) samt
 MOTTAGNINGAR och DAGAR som skickas vidare till flexmassage_tider.py.
+
+Vägar (allt annat ger 404): /, /index.html, /lediga_tider.html,
+/flexmassage_tider.json, /ds/<fil ur DS_FILES>, /status, /healthz (503 om
+OUT_DIR inte går att skriva) och /api/version -> {"version", "built"}.
 """
 import datetime as dt
 import functools
 import http.server
+import json
 import os
 import sys
 import threading
@@ -17,9 +22,28 @@ os.environ.setdefault("OUT_DIR", "/app/data")
 os.environ["SERVER"] = "1"
 import flexmassage_tider as ft  # noqa: E402  (läser OUT_DIR vid import)
 
+HERE = os.path.dirname(os.path.abspath(__file__))
 PORT = int(os.environ.get("PORT", 8080))
 INTERVAL = float(os.environ.get("INTERVALL_MIN", 30)) * 60
 status = {"senast_ok": None, "senast_fel": None, "pagar": False}
+
+
+def _read(name, default=""):
+    try:
+        with open(os.path.join(HERE, name), encoding="utf-8") as f:
+            return f.read().strip() or default
+    except OSError:
+        return default
+
+
+# APP_VERSION/APP_BUILT from the image build; the VERSION/BUILT files as fallback.
+VERSION = os.environ.get("APP_VERSION") or _read("VERSION", "dev")
+BUILT = os.environ.get("APP_BUILT") or _read("BUILT")
+
+
+def data_writable():
+    """OUT_DIR exists and can be written: the fetch writes its files there."""
+    return os.path.isdir(ft.OUT_DIR) and os.access(ft.OUT_DIR, os.W_OK | os.X_OK)
 
 WAITING = """<!doctype html><html lang="sv"><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -50,8 +74,16 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         if self.path in ("/healthz", "/status"):
             body = (f"senast_ok={status['senast_ok']}\nsenast_fel={status['senast_fel']}\n"
                     f"pagar={status['pagar']}\n").encode()
+            if self.path == "/healthz":
+                # Touch the disk: an unwritable OUT_DIR means no new times ever.
+                ok = data_writable()
+                body += f"data_skrivbar={ok}\n".encode()
+                return self.reply(200 if ok else 503, body, "text/plain; charset=utf-8")
             return self.reply(200, body, "text/plain; charset=utf-8")
         path = self.path.split("?")[0]
+        if path == "/api/version":
+            body = json.dumps({"version": VERSION, "built": BUILT}).encode()
+            return self.reply(200, body, "application/json; charset=utf-8")
         if path.startswith("/ds/"):
             name = path[len("/ds/"):]
             if name not in DS_FILES:

@@ -1,0 +1,78 @@
+# Tests the code, then builds the image and publishes it to GHCR.
+#
+# The test job gates the image: a red smoke test never produces an image. Pull
+# requests run the tests only. The smoke test serves a fake data file and never
+# contacts baraboka.se. Every action is pinned to a commit SHA (tag in the
+# comment); dependabot proposes updates.
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
+        with:
+          python-version: "3.12"
+      - name: Syntax check
+        run: python -m py_compile flexmassage_tider.py server.py
+      - name: Smoke test
+        run: python -B -m unittest discover -s tests -v
+      # A syntax error in the page script blanks the page and Python would not notice.
+      - name: Check JavaScript syntax
+        run: |
+          python -c '
+          import re, sys
+          html = open("mall.html", encoding="utf-8").read()
+          for i, js in enumerate(re.findall(r"<script>(.*?)</script>", html, re.S)):
+              open(f"{sys.argv[1]}/mall-{i}.js", "w", encoding="utf-8").write(js)
+          ' "$RUNNER_TEMP"
+          for f in "$RUNNER_TEMP"/mall-*.js; do node --check "$f"; done
+          cp ds/ds.js "$RUNNER_TEMP/ds.mjs" && node --check "$RUNNER_TEMP/ds.mjs"
+      - name: Design system files unchanged
+        run: cd ds && sha256sum -c MANIFEST --quiet
+
+  build:
+    needs: test
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: docker/login-action@81c6f93d4bc991e510b342a00b419b3bb4efc5c6 # v4.7.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Compute version
+        id: ver
+        run: echo "version=$(cut -d. -f1-2 VERSION).${{ github.run_number }}" >> "$GITHUB_OUTPUT"
+      - uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        with:
+          context: .
+          platforms: linux/amd64
+          push: true
+          build-args: |
+            APP_VERSION=${{ steps.ver.outputs.version }}
+          tags: |
+            ghcr.io/ottoherdy/flexmassage:latest
+            ghcr.io/ottoherdy/flexmassage:${{ github.sha }}
+
+      # Tell Portainer to re-pull :latest and redeploy. Only runs if the
+      # PORTAINER_WEBHOOK secret is set (Portainer → stack → Webhooks).
+      - name: Trigger Portainer redeploy
+        env:
+          WEBHOOK: ${{ secrets.PORTAINER_WEBHOOK }}
+        run: |
+          if [ -n "$WEBHOOK" ]; then
+            curl -fsSL -X POST "$WEBHOOK" && echo "Portainer redeploy triggered."
+          else
+            echo "PORTAINER_WEBHOOK not set — skipping auto-redeploy."
+          fi
