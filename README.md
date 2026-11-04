@@ -4,7 +4,7 @@ Samlar alla lediga tider hos Flexmassage (baraboka.se) för utvalda mottagningar
 på en filtrerbar sida. Tiderna hämtas om var 30:e minut.
 
 - `flexmassage_tider.py` hämtar tiderna och bygger `lediga_tider.html` från `mall.html`.
-- `server.py` visar sidan på port 8080 och kör hämtningen i bakgrunden.
+- `server.py` visar sidan på port 8000 och kör hämtningen i bakgrunden.
 - `/status` visar när senaste hämtningen lyckades. `/healthz` visar samma sak och
   svarar 503 om datamappen inte går att skriva. `/api/version` → `{version, built}`.
 
@@ -14,7 +14,7 @@ Bokningen görs alltid på baraboka.se, så en tid som hunnit bokas går inte at
 
 ```bash
 python3 flexmassage_tider.py          # en hämtning, skriver filerna här
-OUT_DIR=./data python3 server.py      # server på http://localhost:8080
+OUT_DIR=./data python3 server.py      # server på http://localhost:8000
 ```
 
 ## Tester
@@ -30,7 +30,7 @@ python3 -B -m unittest discover -s tests   # rökprov mot fejkad data, rör aldr
 | `MOTTAGNINGAR` | Götaplatsen, Almedal, Mölndals Centrum, Pedagogen Park Mölndal | kommaseparerade namn som på baraboka.se |
 | `DAGAR` | 14 | hur långt fram att hämta |
 | `INTERVALL_MIN` | 30 | minuter mellan hämtningar |
-| `PORT` | 8080 | |
+| `PORT` | 8000 | |
 
 ## Deploy (Docker → ghcr → Portainer)
 

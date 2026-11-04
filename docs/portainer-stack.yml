@@ -5,7 +5,7 @@
 # build has published it. The image is public, so no registry login is needed.
 #
 # The container fetches new times every INTERVALL_MIN minutes (first fetch
-# right after start, takes ~2 min) and serves the page on port 8080.
+# right after start, takes ~2 min) and serves the page on port 8000.
 
 services:
   flexmassage:
@@ -26,7 +26,7 @@ services:
     # http://<docker-host-ip>:8791 instead. If you use this, delete the
     # `networks:` block above AND the top-level `networks:` block below.
     # ports:
-    #   - "8791:8080"
+    #   - "8791:8000"
 
 networks:
   proxy:
@@ -38,7 +38,7 @@ networks:
 #   Domain Names:      massage.dindomän.se
 #   Scheme:            http
 #   Forward Hostname:  flexmassage    (the container name; or host IP if using ports)
-#   Forward Port:      8080           (or 8791 if you used the published port)
+#   Forward Port:      8000           (or 8791 if you used the published port)
 #   Block Common Exploits: ON
 # SSL tab:
 #   Request a new Let's Encrypt certificate → Force SSL → HTTP/2 → agree to ToS

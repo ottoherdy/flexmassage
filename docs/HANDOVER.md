@@ -16,7 +16,7 @@ uppdateras var 30:e minut.
 
 ## Vad containern gör
 
-- `server.py` lyssnar på **port 8080**, visar sidan på `/`, data på
+- `server.py` lyssnar på **port 8000**, visar sidan på `/`, data på
   `/flexmassage_tider.json`, och `/status` (även `/healthz`) med senaste
   lyckade/misslyckade hämtning. Allt annat ger 404.
 - Hämtar från baraboka.se direkt vid start och sedan var `INTERVALL_MIN`
@@ -34,7 +34,7 @@ uppdateras var 30:e minut.
 | `INTERVALL_MIN` | 30 | minuter mellan hämtningar |
 | `DAGAR` | 14 | hur långt fram att hämta |
 | `MOTTAGNINGAR` | `GÖTAPLATSEN,ALMEDAL,MÖLNDALS CENTRUM,PEDAGOGEN PARK MÖLNDAL` | kommaseparerade namn exakt som på baraboka.se |
-| `PORT` | 8080 | |
+| `PORT` | 8000 | |
 
 ## Att göra
 
@@ -44,11 +44,11 @@ uppdateras var 30:e minut.
    innehållet i [`docs/portainer-stack.yml`](portainer-stack.yml). Ersätt
    `REPLACE_WITH_YOUR_NPM_NETWORK` med nätverksnamnet från steg 1. (Alternativ
    om nätverk inte passar: ta bort `networks`-blocken och avkommentera
-   `ports: "8791:8080"`.) Deploy.
-3. **Verifiera:** containerloggen ska visa `Lyssnar på :8080 …` och efter
+   `ports: "8791:8000"`.) Deploy.
+3. **Verifiera:** containerloggen ska visa `Lyssnar på :8000 …` och efter
    ~2 min en rad `… lediga tider sparade … (N anrop, S s)`. `/status` ska visa
    `senast_ok=<tid>`.
-4. **NPM Proxy Host:** Forward Hostname `flexmassage`, port `8080` (eller
+4. **NPM Proxy Host:** Forward Hostname `flexmassage`, port `8000` (eller
    värdens IP och `8791`), Block Common Exploits på, Let's Encrypt + Force SSL.
    **Domän: fråga Otto**, ingen är bestämd. Inga websockets behövs.
 5. **Valfritt:** skapa en webhook på stacken och lägg URL:en som secret

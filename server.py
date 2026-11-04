@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Visar lediga_tider.html på PORT och hämtar nya tider var INTERVALL_MIN:e minut.
 
-Miljövariabler: PORT (8080), INTERVALL_MIN (30), OUT_DIR (/app/data) samt
+Miljövariabler: PORT (8000), INTERVALL_MIN (30), OUT_DIR (/app/data) samt
 MOTTAGNINGAR och DAGAR som skickas vidare till flexmassage_tider.py.
 
 Vägar (allt annat ger 404): /, /index.html, /lediga_tider.html,
@@ -23,7 +23,7 @@ os.environ["SERVER"] = "1"
 import flexmassage_tider as ft  # noqa: E402  (läser OUT_DIR vid import)
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-PORT = int(os.environ.get("PORT", 8080))
+PORT = int(os.environ.get("PORT", 8000))
 INTERVAL = float(os.environ.get("INTERVALL_MIN", 30)) * 60
 status = {"senast_ok": None, "senast_fel": None, "pagar": False}
 
