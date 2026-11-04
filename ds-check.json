@@ -11,6 +11,8 @@
   ],
   "gate": [
     "overflow",
-    "wraps"
-  ]
+    "wraps",
+    "contrast"
+  ],
+  "taps_rapport": "Kvar är bara designsystemets komponenter (.seg-knapparna och .btn.sm, 36 px) — beslut i designsystemet, inte i appen."
 }

@@ -16,7 +16,7 @@
   --surface-2: #E6E7EB;
   --line: #D9DADF;
   --text: #2A2B28;
-  --dim: #696A63;
+  --dim: #63645D;   /* 4,84:1 mot --surface-2 (var #696A63, 4,42:1) */
 
   /* Härledd accent: --acc fyller, --acc-text är text/länk på yta, --acc-soft är tonad bakgrund */
   --acc: var(--accent);
