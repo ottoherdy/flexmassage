@@ -59,6 +59,17 @@
     return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b);
   };
   const ratio = (x, y) => { const a = lum(x), b = lum(y); return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05); };
+  // Det som syns bakom en genomskinlig sida: ds-check.json kan ange sidans
+  // "background" (t.ex. en sida som visas i en ram), annars webbläsarens
+  // canvasfärg för det färgschema sidan visas i (vit, eller #121212 i mörkt).
+  const canvas = (() => {
+    const given = window.__DS_CHECK_BG ? rgba(window.__DS_CHECK_BG) : null;
+    if (given && given[3]) return [given[0], given[1], given[2], 1];
+    const cs = getComputedStyle(document.documentElement).colorScheme || '';
+    const dark = /dark/.test(cs) && matchMedia('(prefers-color-scheme: dark)').matches
+      && !(/light/.test(cs) && !/dark/.test(cs));
+    return dark ? [18, 18, 18, 1] : [255, 255, 255, 1];
+  })();
   const effectiveBg = el => {
     const stack = [];
     for (let n = el; n; n = n.parentElement) {
@@ -67,7 +78,7 @@
       stack.push(c);
       if (c[3] === 1) break;
     }
-    let bg = [255, 255, 255, 1];
+    let bg = canvas;
     for (let i = stack.length - 1; i >= 0; i--) bg = over(stack[i], bg);
     return bg;
   };
@@ -146,18 +157,46 @@
     }
   }
 
+  // Träffytan: elementets egen ruta, utökad med ett absolut placerat
+  // ::after/::before (designsystemet 0.2.2 ger små kontroller en osynlig
+  // träffyta på --tap så). Pseudoelementets top/right/bottom/left räknas från
+  // elementets kantlinje (padding-boxen), som för position: absolute.
+  const hitBox = el => {
+    const r = el.getBoundingClientRect();
+    let L = r.left, T = r.top, R = r.right, B = r.bottom;
+    const es = getComputedStyle(el);
+    const bl = parseFloat(es.borderLeftWidth) || 0, bt = parseFloat(es.borderTopWidth) || 0;
+    const br = parseFloat(es.borderRightWidth) || 0, bb = parseFloat(es.borderBottomWidth) || 0;
+    for (const pseudo of ['::after', '::before']) {
+      const ps = getComputedStyle(el, pseudo);
+      if (!ps.content || ps.content === 'none' || ps.content === 'normal') continue;
+      if (ps.position !== 'absolute' || ps.display === 'none' || ps.pointerEvents === 'none') continue;
+      const px = v => (v === 'auto' ? null : parseFloat(v));
+      const pl = r.left + bl, pt = r.top + bt, pr = r.right - br, pb = r.bottom - bb;
+      let l = px(ps.left), t = px(ps.top), rr = px(ps.right), b = px(ps.bottom);
+      const w = parseFloat(ps.width), h = parseFloat(ps.height);
+      let x0 = l != null ? pl + l : (rr != null && w ? pr - rr - w : null);
+      let x1 = rr != null ? pr - rr : (l != null && w ? pl + l + w : null);
+      let y0 = t != null ? pt + t : (b != null && h ? pb - b - h : null);
+      let y1 = b != null ? pb - b : (t != null && h ? pt + t + h : null);
+      if ([x0, x1, y0, y1].some(v => v == null || !isFinite(v))) continue;
+      L = Math.min(L, x0); T = Math.min(T, y0); R = Math.max(R, x1); B = Math.max(B, y1);
+    }
+    return { width: R - L, height: B - T };
+  };
+
   // Träffytor. En kontroll inuti en större tryckbar yta (en rad som är en
   // länk, en etikett runt en kryssruta) täcks av den, och länkar i löptext är
   // undantagna som i WCAG.
   for (const el of document.querySelectorAll(TAPPABLE)) {
     if (!visible(el) || el.disabled) continue;
     if (el.matches('a') && el.closest(LOPTEXT)) continue;
-    const r = el.getBoundingClientRect();
+    const r = hitBox(el);
     if (Math.min(r.width, r.height) >= tap - 0.5) continue;
     let covered = false;
     for (let p = el.parentElement; p && p !== document.body; p = p.parentElement) {
       if (p.matches(TAPPABLE + ', label')) {
-        const q = p.getBoundingClientRect();
+        const q = hitBox(p);
         if (Math.min(q.width, q.height) >= tap - 0.5) { covered = true; break; }
       }
     }

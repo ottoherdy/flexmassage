@@ -184,6 +184,7 @@ for (const theme of ['light', 'dark']) {
       await sleep(cfg.settleMs ?? 400);
     }
     if (page.click) await send('Runtime.evaluate', { expression: `document.querySelector(${JSON.stringify(page.click)})?.click()` }), await sleep(500);
+    await send('Runtime.evaluate', { expression: `window.__DS_CHECK_BG = ${JSON.stringify(page.background || null)}` });
     const { result, exceptionDetails } = await send('Runtime.evaluate', { expression: PROBE, awaitPromise: true, returnByValue: true });
     if (exceptionDetails) { console.log(`✗ ${where}: ${exceptionDetails.exception?.description || exceptionDetails.text}`); errors++; continue; }
     const r = JSON.parse(result.value);

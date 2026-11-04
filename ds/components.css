@@ -19,7 +19,7 @@
 .head > .icon-btn + .icon-btn, .head > .title + .icon-btn { margin-left: 6px; }
 
 /* Startsidan: appens logga + namn i stället för bakåt + titel */
-.brand { flex: 1; min-width: 0; display: flex; align-items: center; gap: 11px; color: inherit; text-decoration: none; }
+.brand { position: relative; flex: 1; min-width: 0; display: flex; align-items: center; gap: 11px; color: inherit; text-decoration: none; }
 .logo { width: 34px; height: 34px; flex: none; border-radius: 50%; background: var(--acc); box-shadow: var(--shadow-acc); position: relative; display: grid; place-items: center; color: var(--acc-ink); overflow: hidden; }
 .logo img, .logo svg { width: 100%; height: 100%; }
 .wordmark { font-size: var(--fs-title); font-weight: 600; letter-spacing: -0.02em; line-height: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -64,7 +64,7 @@
 }
 .menu[hidden], .scrim[hidden] { display: none; }
 .menu a, .menu button {
-  min-height: 42px; padding: 0 10px; border: 0; border-radius: 11px;
+  min-height: var(--tap); padding: 0 10px; border: 0; border-radius: 11px;
   display: flex; align-items: center; gap: var(--s3);
   background: transparent; color: var(--text); text-decoration: none; text-align: left; font-size: var(--fs); font-weight: 500;
 }
@@ -133,7 +133,7 @@ a.row:hover, button.row:hover { background: color-mix(in srgb, var(--surface-2) 
 /* ---------- Knappar ---------- */
 .btn {
   display: inline-flex; align-items: center; justify-content: center; gap: 6px;
-  min-height: 40px; padding: 0 var(--s4);
+  min-height: var(--tap); padding: 0 var(--s4);
   border: 1px solid transparent; border-radius: var(--r-sm);
   background: var(--acc); color: var(--acc-ink);
   font-size: 14px; font-weight: 600; text-decoration: none; white-space: nowrap;
@@ -146,7 +146,7 @@ a.row:hover, button.row:hover { background: color-mix(in srgb, var(--surface-2) 
 .btn.big { width: 100%; min-height: 46px; font-size: var(--fs-md); }
 .btn.danger { background: var(--danger); color: #FFF; }
 .btn.ghost.danger { background: transparent; color: var(--danger); }
-.btn.sm { min-height: 36px; padding: 0 var(--s3); font-size: 14px; }
+.btn.sm { position: relative; min-height: 36px; padding: 0 var(--s3); font-size: 14px; }
 .btn.block { width: 100%; }
 .btn svg { width: 18px; height: 18px; }
 
@@ -169,7 +169,7 @@ a.row:hover, button.row:hover { background: color-mix(in srgb, var(--surface-2) 
 .seg::-webkit-scrollbar { display: none; }
 .seg > * { flex: 0 0 auto; }
 .seg button, .seg a {
-  min-height: 36px; padding: 0 var(--s3); border: 0; border-radius: 8px;
+  min-height: var(--tap); padding: 0 var(--s3); border: 0; border-radius: 8px;
   background: transparent; color: var(--dim); font-size: 14px; font-weight: 600; text-decoration: none;
   display: inline-flex; align-items: center;
 }
@@ -178,6 +178,7 @@ a.row:hover, button.row:hover { background: color-mix(in srgb, var(--surface-2) 
 
 /* Chips (filter) */
 .chip {
+  position: relative;
   min-height: 34px; padding: 0 14px; border-radius: 17px;
   border: 1px solid var(--line); background: var(--surface); color: var(--text);
   font-size: 14px; display: inline-flex; align-items: center; gap: 6px; text-decoration: none;
@@ -303,3 +304,12 @@ dialog.sheet .sheet-body { padding: 0 var(--s4) calc(env(safe-area-inset-bottom)
 .kpi { min-width: 0; }
 .steps li { display: flex; }
 .seg > * { white-space: nowrap; }
+
+/* ---------- Träffyta (0.2.2) ----------
+   Små kontroller behåller sitt utseende men får en osynlig träffyta på minst
+   --tap åt varje håll. ds-check mäter den (data-ds-hit via ::after). */
+.icon-btn::after, .btn.sm::after, .chip::after, .brand::after {
+  content: ""; position: absolute;
+  top: min(0px, calc((100% - var(--tap)) / 2)); bottom: min(0px, calc((100% - var(--tap)) / 2));
+  left: min(0px, calc((100% - var(--tap)) / 2)); right: min(0px, calc((100% - var(--tap)) / 2));
+}
