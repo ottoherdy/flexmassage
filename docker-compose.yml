@@ -4,9 +4,10 @@ services:
     container_name: flexmassage
     restart: unless-stopped
     environment:
-      - INTERVALL_MIN=30
-      - DAGAR=14
-      - MOTTAGNINGAR=GÖTAPLATSEN,ALMEDAL,MÖLNDALS CENTRUM,PEDAGOGEN PARK MÖLNDAL
+      - TZ=${TZ:-Europe/Stockholm}
+      - INTERVALL_MIN=${INTERVALL_MIN:-30}
+      - DAGAR=${DAGAR:-14}
+      - MOTTAGNINGAR=${MOTTAGNINGAR:-GÖTAPLATSEN,ALMEDAL,MÖLNDALS CENTRUM,PEDAGOGEN PARK MÖLNDAL}
     ports:
       - "8791:8080"
     networks:
