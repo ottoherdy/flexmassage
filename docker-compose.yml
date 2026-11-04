@@ -5,11 +5,14 @@ services:
     restart: unless-stopped
     environment:
       - TZ=${TZ:-Europe/Stockholm}
+      # Containerporten (standard i Python-apparna). Står här också så att en äldre
+      # image lyssnar på samma port som portmappningen och NPM-värden.
+      - PORT=${PORT:-8000}
       - INTERVALL_MIN=${INTERVALL_MIN:-30}
       - DAGAR=${DAGAR:-14}
       - MOTTAGNINGAR=${MOTTAGNINGAR:-GÖTAPLATSEN,ALMEDAL,MÖLNDALS CENTRUM,PEDAGOGEN PARK MÖLNDAL}
     ports:
-      - "8791:8080"
+      - "8791:8000"
     networks:
       edge:
         aliases: [flexmassage]

@@ -3,7 +3,7 @@ FROM python:3.12-slim
 ENV TZ=Europe/Stockholm \
     PYTHONUNBUFFERED=1 \
     OUT_DIR=/app/data \
-    PORT=8080 \
+    PORT=8000 \
     INTERVALL_MIN=30
 
 WORKDIR /app
@@ -19,8 +19,8 @@ RUN useradd --system --uid 10001 --user-group --no-create-home appuser \
     && mkdir -p /app/data && chown appuser:appuser /app/data
 USER appuser
 
-EXPOSE 8080
+EXPOSE 8000
 # /healthz checks that /app/data is writable (503 otherwise). slim has no wget.
 HEALTHCHECK --interval=60s --timeout=5s --start-period=10s \
-  CMD python -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/healthz', timeout=4)" || exit 1
+  CMD python -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/healthz', timeout=4)" || exit 1
 CMD ["python", "server.py"]
