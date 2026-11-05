@@ -36,6 +36,15 @@ jobs:
           cp ds/ds.js "$RUNNER_TEMP/ds.mjs" && node --check "$RUNNER_TEMP/ds.mjs"
       - name: Design system files unchanged
         run: cd ds && sha256sum -c MANIFEST --quiet
+      # Designsystemets UI-kontroll: appens sidor i headless Chrome, 390×844, ljust
+      # och mörkt — overflow, text på två rader, kontrast, träffytor.
+      # Grind: overflow och två rader. Kontrast och träffytor rapporteras tills de är rättade.
+      # Se ds-check/ (kopia från designsystemet) och ds-check.json.
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+      - name: UI-kontroll (ds-check)
+        run: (cd ds-check && sha256sum -c MANIFEST --quiet) && node ds-check/check.mjs
 
   build:
     needs: test
@@ -64,15 +73,3 @@ jobs:
           tags: |
             ghcr.io/ottoherdy/flexmassage:latest
             ghcr.io/ottoherdy/flexmassage:${{ github.sha }}
-
-      # Tell Portainer to re-pull :latest and redeploy. Only runs if the
-      # PORTAINER_WEBHOOK secret is set (Portainer → stack → Webhooks).
-      - name: Trigger Portainer redeploy
-        env:
-          WEBHOOK: ${{ secrets.PORTAINER_WEBHOOK }}
-        run: |
-          if [ -n "$WEBHOOK" ]; then
-            curl -fsSL -X POST "$WEBHOOK" && echo "Portainer redeploy triggered."
-          else
-            echo "PORTAINER_WEBHOOK not set — skipping auto-redeploy."
-          fi

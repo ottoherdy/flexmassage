@@ -16,7 +16,7 @@
   --surface-2: #E6E7EB;
   --line: #D9DADF;
   --text: #2A2B28;
-  --dim: #696A63;
+  --dim: #63645D;   /* 4,84:1 mot --surface-2 (var #696A63, 4,42:1) */
 
   /* Härledd accent: --acc fyller, --acc-text är text/länk på yta, --acc-soft är tonad bakgrund */
   --acc: var(--accent);
@@ -27,7 +27,7 @@
   /* Status — samma i alla appar */
   --ok: #2E6E45;      --ok-soft: #E1EFE4;
   --warn: #7A5A10;    --warn-soft: #FAF0D2;
-  --danger: #B4472E;  --danger-soft: #F9E4DE;
+  --danger: #A6412A;  --danger-soft: #F9E4DE;   /* 5,04:1 mot --danger-soft (var #B4472E, 4,43:1) */
 
   --shadow: 0 4px 16px rgba(42, 43, 40, .06);
   --shadow-sm: 0 2px 8px rgba(42, 43, 40, .06);

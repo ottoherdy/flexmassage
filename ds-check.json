@@ -1,0 +1,17 @@
+{
+  "start": "python3 tests/ds_check_server.py",
+  "env": {
+    "OUT_DIR": "$TMP",
+    "PORT": "18001"
+  },
+  "base": "http://127.0.0.1:18001",
+  "ready": "/api/version",
+  "pages": [
+    "/"
+  ],
+  "gate": [
+    "overflow",
+    "wraps",
+    "contrast"
+  ]
+}
