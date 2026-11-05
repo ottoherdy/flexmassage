@@ -73,15 +73,3 @@ jobs:
           tags: |
             ghcr.io/ottoherdy/flexmassage:latest
             ghcr.io/ottoherdy/flexmassage:${{ github.sha }}
-
-      # Tell Portainer to re-pull :latest and redeploy. Only runs if the
-      # PORTAINER_WEBHOOK secret is set (Portainer → stack → Webhooks).
-      - name: Trigger Portainer redeploy
-        env:
-          WEBHOOK: ${{ secrets.PORTAINER_WEBHOOK }}
-        run: |
-          if [ -n "$WEBHOOK" ]; then
-            curl -fsSL -X POST "$WEBHOOK" && echo "Portainer redeploy triggered."
-          else
-            echo "PORTAINER_WEBHOOK not set — skipping auto-redeploy."
-          fi
