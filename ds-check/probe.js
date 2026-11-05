@@ -165,8 +165,8 @@
   // allt klipps av förfäder med overflow ≠ visible — det som klipps går inte
   // att trycka på, även om geometrin säger annat.
   // 1.2.1: bara hidden/clip klipper. En rullbar förfader (auto/scroll) gör inte
-  // det — det som ligger utanför synfältet går att rulla fram (punchclocks
-  // veckorad gav annars 0×44 på pilen).
+  // det, och klippningen slutar där — det som ligger utanför synfältet går att
+  // rulla fram (punchclocks veckorad och choreboards tabell gav annars 0 px).
   const clips = v => v === 'hidden' || v === 'clip';
   const padBox = (el, cs) => {
     const r = el.getBoundingClientRect();
@@ -204,6 +204,9 @@
     }
     for (let p = el.parentElement; p && p !== document.documentElement; p = p.parentElement) {
       const cs = getComputedStyle(p);
+      // Innehållet i en rullbar behållare rullas fram; det som klipper behållaren
+      // längre upp (t.ex. ett .card med overflow: hidden) klipper inte innehållet.
+      if (/auto|scroll/.test(cs.overflowX + cs.overflowY)) break;
       if (clips(cs.overflowX) || clips(cs.overflowY)) clipTo(box, padBox(p, cs), cs);
     }
     box.width = Math.max(0, box.R - box.L); box.height = Math.max(0, box.B - box.T);
@@ -219,10 +222,22 @@
     const cx = (b.L + b.R) / 2, cy = (b.T + b.B) / 2;
     const pts = [[cx, b.T + 1], [cx, b.B - 1], [b.L + 1, cy], [b.R - 1, cy]];
     const mine = overlay(el);
+    // Närmaste rullbara förfader: det som ligger utanför dess synliga ruta rullas
+    // fram innan man trycker, precis som det som ligger utanför fönstret.
+    let sc = el.parentElement;
+    while (sc && sc !== document.documentElement && !/auto|scroll/.test(getComputedStyle(sc).overflowX + getComputedStyle(sc).overflowY)) sc = sc.parentElement;
+    const vis = sc && sc !== document.documentElement ? sc.getBoundingClientRect() : null;
     for (const [x, y] of pts) {
       if (x < 0 || y < 0 || x >= innerWidth || y >= innerHeight) continue;
+      if (vis && (x < vis.left || x >= vis.right || y < vis.top || y >= vis.bottom)) continue;
       const hit = document.elementFromPoint(x, y);
       if (!hit || hit === el || el.contains(hit)) continue;
+      // Rullningslisten i en rullbar förfader: headless Chrome ritar en riktig
+      // list, telefonens list ligger ovanpå och tar inte emot tryck.
+      if (hit.contains(el)) {
+        const hr = hit.getBoundingClientRect();
+        if (x >= hr.left + hit.clientLeft + hit.clientWidth || y >= hr.top + hit.clientTop + hit.clientHeight) continue;
+      }
       const ov = overlay(hit);
       if (ov && ov !== mine && !ov.contains(el)) continue;
       return false;
