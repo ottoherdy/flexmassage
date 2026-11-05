@@ -158,21 +158,36 @@
   }
 
   // Träffytan: elementets egen ruta, utökad med ett absolut placerat
-  // ::after/::before (designsystemet 0.2.2 ger små kontroller en osynlig
-  // träffyta på --tap så). Pseudoelementets top/right/bottom/left räknas från
-  // elementets kantlinje (padding-boxen), som för position: absolute.
+  // ::after/::before (designsystemet ger små kontroller en osynlig träffyta på
+  // --tap så). Pseudoelementets top/right/bottom/left räknas från elementets
+  // kantlinje (padding-boxen), som för position: absolute.
+  // 1.2.0: pseudoelementet klipps av elementets egen overflow (≠ visible) och
+  // allt klipps av förfäder med overflow ≠ visible — det som klipps går inte
+  // att trycka på, även om geometrin säger annat.
+  // 1.2.1: bara hidden/clip klipper. En rullbar förfader (auto/scroll) gör inte
+  // det — det som ligger utanför synfältet går att rulla fram (punchclocks
+  // veckorad gav annars 0×44 på pilen).
+  const clips = v => v === 'hidden' || v === 'clip';
+  const padBox = (el, cs) => {
+    const r = el.getBoundingClientRect();
+    return { L: r.left + (parseFloat(cs.borderLeftWidth) || 0), T: r.top + (parseFloat(cs.borderTopWidth) || 0),
+             R: r.right - (parseFloat(cs.borderRightWidth) || 0), B: r.bottom - (parseFloat(cs.borderBottomWidth) || 0) };
+  };
+  const clipTo = (box, c, cs) => {
+    if (clips(cs.overflowX)) { box.L = Math.max(box.L, c.L); box.R = Math.min(box.R, c.R); }
+    if (clips(cs.overflowY)) { box.T = Math.max(box.T, c.T); box.B = Math.min(box.B, c.B); }
+  };
   const hitBox = el => {
     const r = el.getBoundingClientRect();
-    let L = r.left, T = r.top, R = r.right, B = r.bottom;
+    const box = { L: r.left, T: r.top, R: r.right, B: r.bottom, pseudo: false };
     const es = getComputedStyle(el);
-    const bl = parseFloat(es.borderLeftWidth) || 0, bt = parseFloat(es.borderTopWidth) || 0;
-    const br = parseFloat(es.borderRightWidth) || 0, bb = parseFloat(es.borderBottomWidth) || 0;
+    const pb0 = padBox(el, es);
     for (const pseudo of ['::after', '::before']) {
       const ps = getComputedStyle(el, pseudo);
       if (!ps.content || ps.content === 'none' || ps.content === 'normal') continue;
       if (ps.position !== 'absolute' || ps.display === 'none' || ps.pointerEvents === 'none') continue;
       const px = v => (v === 'auto' ? null : parseFloat(v));
-      const pl = r.left + bl, pt = r.top + bt, pr = r.right - br, pb = r.bottom - bb;
+      const { L: pl, T: pt, R: pr, B: pb } = pb0;
       let l = px(ps.left), t = px(ps.top), rr = px(ps.right), b = px(ps.bottom);
       const w = parseFloat(ps.width), h = parseFloat(ps.height);
       let x0 = l != null ? pl + l : (rr != null && w ? pr - rr - w : null);
@@ -180,9 +195,39 @@
       let y0 = t != null ? pt + t : (b != null && h ? pb - b - h : null);
       let y1 = b != null ? pb - b : (t != null && h ? pt + t + h : null);
       if ([x0, x1, y0, y1].some(v => v == null || !isFinite(v))) continue;
-      L = Math.min(L, x0); T = Math.min(T, y0); R = Math.max(R, x1); B = Math.max(B, y1);
+      const pbox = { L: x0, T: y0, R: x1, B: y1 };
+      clipTo(pbox, pb0, es);                      // elementets egen overflow
+      if (pbox.R - pbox.L <= r.width && pbox.B - pbox.T <= r.height) continue;
+      box.L = Math.min(box.L, pbox.L); box.T = Math.min(box.T, pbox.T);
+      box.R = Math.max(box.R, pbox.R); box.B = Math.max(box.B, pbox.B);
+      box.pseudo = true;
     }
-    return { width: R - L, height: B - T };
+    for (let p = el.parentElement; p && p !== document.documentElement; p = p.parentElement) {
+      const cs = getComputedStyle(p);
+      if (clips(cs.overflowX) || clips(cs.overflowY)) clipTo(box, padBox(p, cs), cs);
+    }
+    box.width = Math.max(0, box.R - box.L); box.height = Math.max(0, box.B - box.T);
+    return box;
+  };
+
+  // Provtryck: mitt på varje kant, 1 px innanför. Träffas något annat än
+  // elementet (eller dess barn) underkänns ytan. Punkter utanför fönstret och
+  // punkter under fasta/klistrade lager (sidhuvud, flikrad) hoppas över.
+  const overlay = n => { for (; n && n !== document.body; n = n.parentElement) {
+    const p = getComputedStyle(n).position; if (p === 'fixed' || p === 'sticky') return n; } return null; };
+  const reaches = (el, b) => {
+    const cx = (b.L + b.R) / 2, cy = (b.T + b.B) / 2;
+    const pts = [[cx, b.T + 1], [cx, b.B - 1], [b.L + 1, cy], [b.R - 1, cy]];
+    const mine = overlay(el);
+    for (const [x, y] of pts) {
+      if (x < 0 || y < 0 || x >= innerWidth || y >= innerHeight) continue;
+      const hit = document.elementFromPoint(x, y);
+      if (!hit || hit === el || el.contains(hit)) continue;
+      const ov = overlay(hit);
+      if (ov && ov !== mine && !ov.contains(el)) continue;
+      return false;
+    }
+    return true;
   };
 
   // Träffytor. En kontroll inuti en större tryckbar yta (en rad som är en
@@ -192,19 +237,25 @@
     if (!visible(el) || el.disabled) continue;
     if (el.matches('a') && el.closest(LOPTEXT)) continue;
     const r = hitBox(el);
-    if (Math.min(r.width, r.height) >= tap - 0.5) continue;
+    let miss = false;
+    if (Math.min(r.width, r.height) >= tap - 0.5) {
+      if (!r.pseudo || reaches(el, r)) continue;
+      miss = true;
+    }
     let covered = false;
     for (let p = el.parentElement; p && p !== document.body; p = p.parentElement) {
       if (p.matches(TAPPABLE + ', label')) {
         const q = hitBox(p);
-        if (Math.min(q.width, q.height) >= tap - 0.5) { covered = true; break; }
+        if (Math.min(q.width, q.height) >= tap - 0.5 && (!q.pseudo || reaches(p, q))) { covered = true; break; }
       }
     }
     if (covered) continue;
     const k = 't' + label(el) + text(el.textContent || el.getAttribute('aria-label') || '');
     if (seen.has(k)) continue;
     seen.add(k);
-    taps.push({ el: label(el), text: text(el.textContent || el.getAttribute('aria-label') || el.value || ''), w: Math.round(r.width), h: Math.round(r.height) });
+    const f = { el: label(el), text: text(el.textContent || el.getAttribute('aria-label') || el.value || ''), w: Math.round(r.width), h: Math.round(r.height) };
+    if (miss) f.miss = 'träffas inte i kanten';
+    taps.push(f);
   }
 
   return JSON.stringify({ overflow, wraps, contrast, taps, tap });

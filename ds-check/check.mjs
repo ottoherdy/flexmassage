@@ -205,7 +205,7 @@ const line = {
   overflow: f => `+${f.px}px`,
   wraps: f => `${f.el}  "${f.text}" (${f.lines} rader)`,
   contrast: f => `${f.ratio}:1 < ${f.need}  ${f.el} ${f.size}px  "${f.text}"`,
-  taps: f => `${f.w}×${f.h}  ${f.el}  "${f.text}"`,
+  taps: f => `${f.w}×${f.h}${f.miss ? " (" + f.miss + ")" : ""}  ${f.el}  "${f.text}"`,
 };
 let gated = 0;
 for (const k of KINDS) {

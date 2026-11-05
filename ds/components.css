@@ -298,16 +298,22 @@ dialog.sheet .sheet-body { padding: 0 var(--s4) calc(env(safe-area-inset-bottom)
  * Behövs hela texten: visa den på en egen sida eller i ett ark, aldrig som radbrytning. */
 .head .title, .head .title small, .sech, .card > h2, .row .text, .row .meta, .row .lead, .row .trail,
 .pill, .btn, .chip, .menu a, .menu button, .label, .hint, .banner p, .toast span,
-.kpi small, .kpi b, .kpi span, .steps li, .empty b, .field input, .tab, .icon-btn, .wordmark {
+.kpi small, .kpi b, .kpi span, .steps li, .empty b, .field input, .tab, .wordmark {
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0;
 }
+/* .icon-btn har bara en ikon eller ett tecken: ingen … behövs, och overflow: hidden
+   skulle klippa bort dess osynliga träffyta (::after) så att den inte gick att trycka på (0.2.3). */
+.icon-btn { white-space: nowrap; overflow: visible; }
 .kpi { min-width: 0; }
 .steps li { display: flex; }
 .seg > * { white-space: nowrap; }
 
 /* ---------- Träffyta (0.2.2) ----------
    Små kontroller behåller sitt utseende men får en osynlig träffyta på minst
-   --tap åt varje håll. ds-check mäter den (data-ds-hit via ::after). */
+   --tap åt varje håll. ds-check mäter den (data-ds-hit via ::after).
+   OBS 0.2.3: .btn.sm och .chip har overflow: hidden (en-rad-regeln), som klipper
+   deras ::after — ytan fungerar inte där. Beslut väntar: riktiga 44 px eller
+   behålla storleken; ds-check 1.2.0 underkänner dem ärligt tills dess. */
 .icon-btn::after, .btn.sm::after, .chip::after, .brand::after {
   content: ""; position: absolute;
   top: min(0px, calc((100% - var(--tap)) / 2)); bottom: min(0px, calc((100% - var(--tap)) / 2));

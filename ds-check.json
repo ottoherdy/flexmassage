@@ -12,7 +12,6 @@
   "gate": [
     "overflow",
     "wraps",
-    "contrast",
-    "taps"
+    "contrast"
   ]
 }
