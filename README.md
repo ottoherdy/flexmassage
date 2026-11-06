@@ -10,18 +10,22 @@ på en filtrerbar sida. Tiderna hämtas om var 30:e minut.
 
 Bokningen görs alltid på baraboka.se, så en tid som hunnit bokas går inte att boka igen.
 
-## Köra lokalt
-
+## Run
 ```bash
 python3 flexmassage_tider.py          # en hämtning, skriver filerna här
 OUT_DIR=./data python3 server.py      # server på http://localhost:8000
 ```
 
-## Tester
-
+## Development standards
 ```bash
 python3 -B -m unittest discover -s tests   # rökprov mot fejkad data, rör aldrig baraboka.se
 ```
+
+- Standarden: `~/Documents/app-arkitektur.md` (avsnitt 7 är kontraktet).
+  Designsystemet: `~/other-sync/Claude/designsystem/README.md`; `ds/` ändras bara där.
+- CI-grinden (`.github/workflows/ci.yml`): `py_compile`, `unittest`, `ds/MANIFEST`. Rött = ingen image.
+- Compose har bara env-namn (`${VAR:-…}`), aldrig hemligheter; Actions är SHA-pinnade.
+- Beslut i `docs/DESIGN.md`, regler för agenter i `CLAUDE.md`.
 
 ## Inställningar (miljövariabler)
 
@@ -32,9 +36,21 @@ python3 -B -m unittest discover -s tests   # rökprov mot fejkad data, rör aldr
 | `INTERVALL_MIN` | 30 | minuter mellan hämtningar |
 | `PORT` | 8000 | |
 
-## Deploy (Docker → ghcr → Portainer)
+## Deploy
 
-GitHub Actions (`.github/workflows/ci.yml`) kör rökprovet och bygger sedan en
-amd64-image till `ghcr.io/ottoherdy/flexmassage` (`:latest` + `:<sha>`), bara vid
-push till main. Containern kör som uid 10001 och skriver bara i `/app/data`. Klistra in `docs/portainer-stack.yml` som en stack
-i Portainer. Sätt secret `PORTAINER_WEBHOOK` i repot för automatisk redeploy.
+Push till `main` → CI kör grinden → bygger imagen (bara amd64) → `watchtower-snabb`
+rullar ut den inom fem minuter (containern står i dess namnlista).
+
+Stacken `flexmassage (84)` på docker-local (VM 104, 10.20.2.101). Ändrad compose eller env går ut med
+`~/other-sync/Claude/docker-local/deploy/deploy.py flexmassage --dry-run` och sedan utan
+`--dry-run`; hemligheterna står i stackens env (eller hämtas ur valvet via `apps.toml`).
+
+Bara hemma: `flexmassage.other.nu` i lokala NPM (värd 39 → `flexmassage:8000` på `edge`)
+och värdport 8791. Containern kör som uid 10001 och skriver bara i `/app/data`.
+
+## Architecture
+
+`server.py` (standardbibliotekets `http.server`, port 8000) serverar sidan och
+`/healthz` + `/api/version`; `flexmassage_tider.py` hämtar lediga tider var
+`INTERVALL_MIN` minut och skriver resultatet i `/app/data`. Inga beroenden utanför
+Pythons standardbibliotek; UI:t bygger på designsystemet i `ds/`.
