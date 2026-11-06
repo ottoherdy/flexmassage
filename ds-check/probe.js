@@ -248,6 +248,10 @@
   // Träffytor. En kontroll inuti en större tryckbar yta (en rad som är en
   // länk, en etikett runt en kryssruta) täcks av den, och länkar i löptext är
   // undantagna som i WCAG.
+  // tapsAllow (ds-check.json): kontroller som appen medvetet håller små. De mäts
+  // som vanligt men hamnar i tapsAllowed i stället för taps.
+  const ALLOW = window.__DS_CHECK_TAPS_ALLOW || null;
+  const tapsAllowed = [];
   for (const el of document.querySelectorAll(TAPPABLE)) {
     if (!visible(el) || el.disabled) continue;
     if (el.matches('a') && el.closest(LOPTEXT)) continue;
@@ -270,8 +274,8 @@
     seen.add(k);
     const f = { el: label(el), text: text(el.textContent || el.getAttribute('aria-label') || el.value || ''), w: Math.round(r.width), h: Math.round(r.height) };
     if (miss) f.miss = 'träffas inte i kanten';
-    taps.push(f);
+    (ALLOW && el.closest(ALLOW) ? tapsAllowed : taps).push(f);
   }
 
-  return JSON.stringify({ overflow, wraps, contrast, taps, tap });
+  return JSON.stringify({ overflow, wraps, contrast, taps, tapsAllowed, tap });
 })()
