@@ -144,7 +144,7 @@ await send('Network.enable');
 await send('Emulation.setDeviceMetricsOverride', { width: VIEW.width, height: VIEW.height, deviceScaleFactor: 3, mobile: true });
 if (jar.size) await send('Network.setExtraHTTPHeaders', { headers: { Cookie: cookieHeader() } });
 
-const found = Object.fromEntries(KINDS.map(k => [k, new Map()]));
+const found = Object.fromEntries([...KINDS, 'allowed'].map(k => [k, new Map()]));
 const keep = (kind, f, where) => {
   const key = JSON.stringify(f);
   if (!found[kind].has(key)) found[kind].set(key, { ...f, where: new Set() });
@@ -184,7 +184,7 @@ for (const theme of ['light', 'dark']) {
       await sleep(cfg.settleMs ?? 400);
     }
     if (page.click) await send('Runtime.evaluate', { expression: `document.querySelector(${JSON.stringify(page.click)})?.click()` }), await sleep(500);
-    await send('Runtime.evaluate', { expression: `window.__DS_CHECK_BG = ${JSON.stringify(page.background || null)}` });
+    await send('Runtime.evaluate', { expression: `window.__DS_CHECK_BG = ${JSON.stringify(page.background || null)}; window.__DS_CHECK_TAPS_ALLOW = ${JSON.stringify((cfg.tapsAllow || []).join(', ') || null)}` });
     const { result, exceptionDetails } = await send('Runtime.evaluate', { expression: PROBE, awaitPromise: true, returnByValue: true });
     if (exceptionDetails) { console.log(`✗ ${where}: ${exceptionDetails.exception?.description || exceptionDetails.text}`); errors++; continue; }
     const r = JSON.parse(result.value);
@@ -195,11 +195,14 @@ for (const theme of ['light', 'dark']) {
     for (const f of r.wraps) keep('wraps', f, where);
     for (const f of r.contrast) keep('contrast', f, where);
     if (theme === 'light') for (const f of r.taps) keep('taps', f, where);
+    if (theme === 'light') for (const f of r.tapsAllowed || []) keep('allowed', f, where);
     const n = (r.overflow > 0 ? 1 : 0) + r.wraps.length + r.contrast.length + (theme === 'light' ? r.taps.length : 0);
     console.log(`${n ? '•' : '✓'} ${where}${moved}${n ? `  ${n} fynd` : ''}`);
   }
 }
 
+// Små kontroller som appen valt att behålla små (tapsAllow): räknas inte som fynd
+// men listas, så att undantaget syns i varje körning.
 const title = { overflow: 'Spiller över skärmens bredd', wraps: 'Gränssnittstext på två rader', contrast: 'Kontrast under kravet', taps: 'Träffytor under --tap' };
 const line = {
   overflow: f => `+${f.px}px`,
@@ -207,6 +210,10 @@ const line = {
   contrast: f => `${f.ratio}:1 < ${f.need}  ${f.el} ${f.size}px  "${f.text}"`,
   taps: f => `${f.w}×${f.h}${f.miss ? " (" + f.miss + ")" : ""}  ${f.el}  "${f.text}"`,
 };
+if (found.allowed.size) {
+  console.log(`\nUndantagna små kontroller (${found.allowed.size}, tapsAllow i ds-check.json):`);
+  for (const f of found.allowed.values()) console.log(`  ${line.taps(f)}`);
+}
 let gated = 0;
 for (const k of KINDS) {
   if (!found[k].size) continue;

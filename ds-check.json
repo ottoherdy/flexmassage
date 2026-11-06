@@ -12,6 +12,10 @@
   "gate": [
     "overflow",
     "wraps",
-    "contrast"
+    "contrast",
+    "taps"
+  ],
+  "tapsAllow": [
+    ".btn.sm"
   ]
 }
