@@ -78,7 +78,6 @@ def list_locations():
 
 
 SLOT = re.compile(r'id="time_(\d{8})_(\d\d)_(\d\d)_(\d\d)_(\d\d)_\d+_(\d+)_\w+"')
-OTHER = re.compile(r"""id="time_(\d+)_\d+" action""")
 
 
 def parse_slots(page):
@@ -91,8 +90,9 @@ def parse_slots(page):
 
 
 def fetch_location(loc, end):
-    """En session per mottagning. Hämtar först en behandling per 4-dagarsfönster; svaret
-    listar vilka andra behandlingar som har lediga tider de dagarna, och bara de hämtas."""
+    """En session per mottagning. Varje behandling hämtas för sig, ett 4-dagarsfönster i taget.
+    Svarets lista över "andra behandlingar med lediga tider" går inte att lita på: den tar
+    bara med samma familj (Djup klassisk), så Gravid, Bindväv och Företag föll bort."""
     ses = Session()
     ses.get("index.php")
     ses.set(locationID=loc["id"])
@@ -117,16 +117,14 @@ def fetch_location(loc, end):
         return ses.post("includes/pages/refresh-display/load-selected-day.ajax.php",
                         {"daterequest": start.isoformat(), "days": 0})
 
-    day = dt.date.today()
-    while day <= end:
-        page = window(base, day)
-        out |= {(base,) + x for x in parse_slots(page)}
-        for sid in dict.fromkeys(OTHER.findall(page)):
-            if sid != base and sid in services:
-                out |= {(sid,) + x for x in parse_slots(window(sid, day))}
-        blocks = re.findall(r'id="day_block_(\d\d)_(\d\d)_(\d\d)"', page)
-        last = max((dt.date(2000 + int(y), int(mo), int(dd)) for y, mo, dd in blocks), default=day)
-        day = max(last, day) + dt.timedelta(days=1)
+    for sid in services:
+        day = dt.date.today()
+        while day <= end:
+            page = window(sid, day)
+            out |= {(sid,) + x for x in parse_slots(page)}
+            blocks = re.findall(r'id="day_block_(\d\d)_(\d\d)_(\d\d)"', page)
+            last = max((dt.date(2000 + int(y), int(mo), int(dd)) for y, mo, dd in blocks), default=day)
+            day = max(last, day) + dt.timedelta(days=1)
     rows = [{"mottagning": loc["name"], "behandling": services[sid], "datum": d, "start": s,
              "slut": e, "massor": st} for sid, d, s, e, st in out if d <= end.isoformat()]
     return rows, requests
