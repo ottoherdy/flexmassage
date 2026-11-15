@@ -48,7 +48,7 @@ def data_writable():
 WAITING = """<!doctype html><html lang="sv"><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta http-equiv="refresh" content="20"><title>Lediga massagetider</title>
-<meta name="theme-color" content="#EFEFF2" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#F6F2EB" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#17181A" media="(prefers-color-scheme: dark)">
 <link rel="stylesheet" href="ds/tokens.css"><link rel="stylesheet" href="ds/base.css">
 <link rel="stylesheet" href="ds/components.css">

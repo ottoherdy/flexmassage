@@ -1,6 +1,6 @@
 /* designsystem · tokens.css
  * Alla värden appar och komponenter bygger på — utseendet från punchclock och
- * hjärnsläpp: grå botten, vita kort med kant och mjuk skugga, systemets typsnitt.
+ * hjärnsläpp: varm ljus botten, vita kort med kant och mjuk skugga, systemets typsnitt.
  * Appen sätter bara --accent (och --accent-ink om accenten är ljus) i app.css.
  * Mörkt läge följer enheten. Ändra aldrig den här filen i en app — den kopieras
  * in från ottoherdy/designsystem och CI kontrollerar den. */
@@ -11,12 +11,12 @@
   --accent-ink: #FFFFFF;
 
   /* Ytor och text */
-  --bg: #EFEFF2;
+  --bg: #F6F2EB;          /* varmt papper (0.4.0; var kallgrå #EFEFF2) */
   --surface: #FFFFFF;
-  --surface-2: #E6E7EB;
-  --line: #D9DADF;
+  --surface-2: #ECE7DE;
+  --line: #E0DAD0;
   --text: #2A2B28;
-  --dim: #63645D;   /* 4,84:1 mot --surface-2 (var #696A63, 4,42:1) */
+  --dim: #63645D;   /* 4,86:1 mot --surface-2 (var #696A63, 4,42:1) */
 
   /* Härledd accent: --acc fyller, --acc-text är text/länk på yta, --acc-soft är tonad bakgrund */
   --acc: var(--accent);
@@ -67,8 +67,11 @@
   color-scheme: light;
 }
 
+/* Mörkt läge följer enheten. En app som visas där enhetens läge inte når sidan
+ * (en platta i kioskläge) kan tvinga läget med data-theme="dark"/"light" på <html>
+ * (0.3.0). Telefon- och datorvyer sätter det aldrig. */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme="light"]) {
     --bg: #17181A;
     --surface: #212226;
     --surface-2: #2A2B30;
@@ -92,4 +95,29 @@
 
     color-scheme: dark;
   }
+}
+
+:root[data-theme="dark"] {
+  --bg: #17181A;
+  --surface: #212226;
+  --surface-2: #2A2B30;
+  --line: #33343A;
+  --text: #ECEDEF;
+  --dim: #9DA0A5;
+
+  --acc: color-mix(in oklab, var(--accent) 72%, #FFF);
+  --acc-ink: #17120C;
+  --acc-text: color-mix(in oklab, var(--accent) 60%, #FFF);
+  --acc-soft: color-mix(in srgb, var(--accent) 24%, #212226);
+
+  --ok: #8FD0A3;      --ok-soft: #1D3125;
+  --warn: #DCCF8F;    --warn-soft: #2C2A1E;
+  --danger: #E0765A;  --danger-soft: #3A2019;
+
+  --shadow: 0 4px 16px rgba(0, 0, 0, .35);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, .35);
+  --shadow-pop: 0 18px 50px rgba(0, 0, 0, .55);
+  --scrim: rgba(0, 0, 0, .5);
+
+  color-scheme: dark;
 }
